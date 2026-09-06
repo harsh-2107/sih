@@ -1,0 +1,2 @@
+// Placeholder for data models directory
+export const models = {};
