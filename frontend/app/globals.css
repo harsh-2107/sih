@@ -1,26 +1,288 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DESIGN SYSTEM — CRIMENET AI
+   Semantic CSS custom properties for light (default) and dark.
+   Tailwind v4: @theme inline maps vars to utility classes.
+   ============================================================ */
+
+/* --- Light theme (default) --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background:           #E9E7E1;
+  --background-secondary: #DDE1DC;
+  --surface:              rgba(247, 248, 245, 0.75);
+  --surface-dark:         rgba(220, 224, 218, 0.80);
+  --surface-hover:        rgba(255, 255, 255, 0.88);
+  --primary:              #174A46;
+  --primary-hover:        #103A37;
+  --accent:               #B7653F;
+  --accent-soft:          #D49A7E;
+  --text-primary:         #17201F;
+  --text-secondary:       #66716F;
+  --text-tertiary:        #9AA5A2;
+  --text-bright:          #0D1212;
+  --border:               rgba(255, 255, 255, 0.6);
+  --border-strong:        rgba(23, 74, 70, 0.25);
+  --divider:              #CCD3CE;
+  --success:              #39765D;
+  --warning:              #B98536;
+  --danger:               #B84B4B;
+
+  /* Ambient Glow Colors for Light Mode */
+  --glow-teal:            rgba(23, 74, 70, 0.12);
+  --glow-rust:            rgba(183, 101, 63, 0.09);
+
+  /* Graph canvas background - light: deep teal-grey for contrast */
+  --graph-bg:             rgba(18, 28, 26, 0.92);
+
+  /* Graph node colours */
+  --graph-person:         #3F8A82;
+  --graph-org:            #5878B0;
+  --graph-location:       #7AAD4A;
+  --graph-phone:          #9A7ACE;
+  --graph-vehicle:        #C87850;
 }
 
+/* --- Dark theme --- */
+.dark {
+  --background:           #0D1212;
+  --background-secondary: #141B1A;
+  --surface:              rgba(255, 255, 255, 0.05);
+  --surface-dark:         rgba(0, 0, 0, 0.35);
+  --surface-hover:        rgba(255, 255, 255, 0.09);
+  --primary:              #3F8A82;
+  --primary-hover:        #55A59C;
+  --accent:               #C87850;
+  --accent-soft:          #9E5A3E;
+  --text-primary:         #EFF2ED;
+  --text-secondary:       #A1AAA6;
+  --text-tertiary:        #6A7472;
+  --text-bright:          #FFFFFF;
+  --border:               rgba(255, 255, 255, 0.1);
+  --border-strong:        rgba(255, 255, 255, 0.18);
+  --divider:              rgba(255, 255, 255, 0.07);
+  --success:              #59A17D;
+  --warning:              #D0A04A;
+  --danger:               #D26060;
+
+  /* Ambient Glow Colors for Dark Mode */
+  --glow-teal:            rgba(63, 138, 130, 0.15);
+  --glow-rust:            rgba(200, 120, 80, 0.11);
+
+  /* Graph canvas background */
+  --graph-bg:             rgba(6, 10, 10, 0.85);
+
+  --graph-person:         #3F8A82;
+  --graph-org:            #5878B0;
+  --graph-location:       #7AAD4A;
+  --graph-phone:          #9A7ACE;
+  --graph-vehicle:        #C87850;
+}
+
+/* ============================================================
+   TAILWIND V4 THEME MAPPING — IBM PLEX SANS & MONO
+   ============================================================ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg:             var(--background);
+  --color-bg-secondary:   var(--background-secondary);
+  --color-surface:        var(--surface);
+  --color-surface-hover:  var(--surface-hover);
+  --color-primary:        var(--primary);
+  --color-primary-hover:  var(--primary-hover);
+  --color-accent:         var(--accent);
+  --color-accent-soft:    var(--accent-soft);
+  --color-text-primary:   var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border:         var(--border);
+  --color-divider:        var(--divider);
+  --color-success:        var(--success);
+  --color-warning:        var(--warning);
+  --color-danger:         var(--danger);
+  --font-sans:            var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --font-mono:            var(--font-ibm-plex-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   BASE RESET & ATMOSPHERIC BACKGROUND
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  position: relative;
+}
+
+/* Technical Monospace Utility for metadata (Case IDs, hashes, timestamps) */
+.font-mono {
+  font-family: var(--font-ibm-plex-mono), monospace;
+}
+
+/* Atmospheric Ambient Layer (renders behind content layer) */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-bg::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 750px;
+  max-height: 750px;
+  background: var(--glow-teal);
+  border-radius: 50%;
+  filter: blur(140px);
+}
+
+.ambient-bg::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 650px;
+  max-height: 650px;
+  background: var(--glow-rust);
+  border-radius: 50%;
+  filter: blur(140px);
+}
+
+.ambient-bg-bottom {
+  position: absolute;
+  bottom: -10%;
+  left: 20%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 800px;
+  max-height: 800px;
+  background: var(--glow-teal);
+  border-radius: 50%;
+  filter: blur(160px);
+  pointer-events: none;
+}
+
+/* ============================================================
+   GLASSMORPHISM UTILITIES
+   ============================================================ */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+}
+
+.glass-hover:hover {
+  background: var(--surface-hover);
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--divider);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ============================================================
+   FOCUS TREATMENT — SUBTLE & ACCESSIBLE
+   ============================================================ */
+:focus-visible {
+  outline: 1.5px solid var(--primary);
+  outline-offset: 1px;
+  border-radius: 6px;
+}
+
+button:focus, input:focus, textarea:focus, select:focus {
+  outline: none;
+}
+
+/* ============================================================
+   TRANSITION HELPERS & PREFERS-REDUCED-MOTION
+   ============================================================ */
+.transition-theme {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   GRAPH LEGEND DOT COLOURS
+   ============================================================ */
+.graph-node-person   { fill: var(--graph-person); }
+.graph-node-org      { fill: var(--graph-org); }
+.graph-node-location { fill: var(--graph-location); }
+.graph-node-phone    { fill: var(--graph-phone); }
+.graph-node-vehicle  { fill: var(--graph-vehicle); }
+
+/* ============================================================
+   CUSTOM SCROLLBAR — compact and theme-aware
+   ============================================================ */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--divider);
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* ============================================================
+   GRAPH CANVAS CONTAINER
+   ============================================================ */
+.graph-canvas-bg {
+  background: var(--graph-bg);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* ============================================================
+   INVESTIGATION SIDEBAR
+   ============================================================ */
+.case-sidebar {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }

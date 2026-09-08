@@ -1,0 +1,62 @@
+export const CROSS_CASE_DATA = {
+  targetEntity: {
+    id: "P1",
+    name: "R. Malhotra",
+    alias: "Victor Vance",
+    role: "Primary Suspect / Broker",
+    risk: "high",
+  },
+  sharedIndicators: [
+    { label: "Phone", value: "+91 98765-43210" },
+    { label: "Entity", value: "Shreeji Traders" },
+    { label: "Facility", value: "Warehouse 12B, Sector 7" },
+  ],
+  linkedCases: [
+    {
+      id: "CASE-2049",
+      title: "Sector 7 Extortion Ring",
+      status: "Active",
+      role: "Key Coordinator",
+      confidence: 96,
+      date: "06 Sep 2026",
+    },
+    {
+      id: "CASE-2011",
+      title: "Digital Wallet Laundering",
+      status: "Active",
+      role: "Beneficiary Account",
+      confidence: 88,
+      date: "28 Aug 2026",
+    },
+    {
+      id: "CASE-1988",
+      title: "Riverside Smuggling Route",
+      status: "Under Review",
+      role: "Logistics Contact",
+      confidence: 91,
+      date: "14 Aug 2026",
+    },
+  ],
+  crossGraph: {
+    nodes: [
+      { id: "C2049", name: "CASE-2049", type: "case" },
+      { id: "C2011", name: "CASE-2011", type: "case" },
+      { id: "C1988", name: "CASE-1988", type: "case" },
+      { id: "P1", name: "R. Malhotra", type: "person" },
+      { id: "O_SHREEJI", name: "Shreeji Traders", type: "org" },
+      { id: "N_PHONE", name: "+91 98765-43210", type: "phone" },
+      { id: "L_WH12B", name: "Warehouse 12B", type: "location" },
+    ],
+    links: [
+      { source: "P1", target: "C2049", label: "Primary Suspect" },
+      { source: "P1", target: "C2011", label: "Wallet Owner" },
+      { source: "P1", target: "C1988", label: "Logistics Link" },
+      { source: "P1", target: "O_SHREEJI", label: "Director" },
+      { source: "O_SHREEJI", target: "C2049", label: "Invoiced" },
+      { source: "O_SHREEJI", target: "C2011", label: "Transferred" },
+      { source: "P1", target: "N_PHONE", label: "Registered" },
+      { source: "N_PHONE", target: "C1988", label: "Logged Pings" },
+      { source: "L_WH12B", target: "C2049", label: "Meeting Site" },
+    ],
+  },
+};

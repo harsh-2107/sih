@@ -1,0 +1,59 @@
+# docker-compose.prod.yml — production overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#
+# Differences from dev:
+#   - No source bind-mounts (images are fully built)
+#   - NODE_ENV / PYTHONENV = production
+#   - frontend is served on port 3000 (put a reverse proxy in front in real deploys)
+#   - neo4j and processing ports are NOT exposed to the host (internal traffic only)
+#   - persistent named volumes for postgres and neo4j data
+
+services:
+  postgres:
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+
+  neo4j:
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-neo4j_password_change_me}
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 1G
+    volumes:
+      - neo4j_data_prod:/data
+      - neo4j_logs_prod:/logs
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      NODE_ENV: production
+
+  processing:
+    build:
+      context: ./processing
+      dockerfile: Dockerfile
+      target: production
+    # Not exposed to host in production — accessed internally by backend
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+
+volumes:
+  postgres_data_prod:
+  neo4j_data_prod:
+  neo4j_logs_prod:

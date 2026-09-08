@@ -60,3 +60,6 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 postgres_data/
+
+# Pre-downloaded Python wheels (offline install workaround)
+processing/wheelhouse/

@@ -1,3 +1,4 @@
+# ── Node / Next.js ────────────────────────────────
 node_modules
 **/node_modules
 .next
@@ -8,17 +9,38 @@ build
 **/build
 dist
 **/dist
+
+# ── Python ────────────────────────────────────────
+__pycache__
+**/__pycache__
+*.py[cod]
+*.pyo
+.venv
+**/venv
+**/.venv
+*.egg-info
+
+# ── Git & IDE ─────────────────────────────────────
 .git
 **/.git
 .gitignore
+.vscode
+.idea
+
+# ── Secrets ───────────────────────────────────────
 .env
 .env.*
 !.env.example
+**/.env
+**/.env.*
+
+# ── Logs & OS ─────────────────────────────────────
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
-.vscode
-.idea
+
+# ── Data volumes ──────────────────────────────────
 postgres_data/
+neo4j_data/

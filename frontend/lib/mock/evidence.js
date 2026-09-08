@@ -1,0 +1,80 @@
+export const EVIDENCE_ITEMS = [
+  {
+    id: "EVID-2024-001",
+    title: "Seized Corporate Register - Apex Global",
+    type: "Document",
+    fileSize: "4.2 MB",
+    uploadedAt: "2024-08-01 14:22:00",
+    sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    integrityStatus: "Verified",
+    custodyChain: ["Field Unit Alpha", "Evidence Vault #4", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 8,
+    relationsExtracted: 6,
+    classification: "Confidential / Judicial"
+  },
+  {
+    id: "EVID-2024-002",
+    title: "Bank SWIFT Ledger - Aug Wire Transfers",
+    type: "Financial Record",
+    fileSize: "12.8 MB",
+    uploadedAt: "2024-08-05 09:15:30",
+    sha256: "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4",
+    integrityStatus: "Verified",
+    custodyChain: ["Financial Intelligence Unit", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 14,
+    relationsExtracted: 11,
+    classification: "Bank Secrecy Act Record"
+  },
+  {
+    id: "EVID-2024-003",
+    title: "Port Authority Customs Manifest #BOL-992",
+    type: "Shipping Document",
+    fileSize: "1.9 MB",
+    uploadedAt: "2024-08-12 18:40:12",
+    sha256: "a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0",
+    integrityStatus: "Verified",
+    custodyChain: ["Customs & Border Enforcement", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 6,
+    relationsExtracted: 5,
+    classification: "Customs Import Manifest"
+  },
+  {
+    id: "EVID-2024-004",
+    title: "Telecom CDR Call Data Records - Burner Line",
+    type: "Comms Log",
+    fileSize: "28.4 MB",
+    uploadedAt: "2024-08-14 22:11:45",
+    sha256: "7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789",
+    integrityStatus: "Verified",
+    custodyChain: ["Cyber Crimes Division", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 19,
+    relationsExtracted: 18,
+    classification: "Wiretap Warrant Output"
+  },
+  {
+    id: "EVID-2024-005",
+    title: "Lease Agreement - Suite 402 Financial Tower",
+    type: "Document",
+    fileSize: "2.1 MB",
+    uploadedAt: "2024-08-19 11:05:00",
+    sha256: "f0e9d8c7b6a59483726150493827160594837261504938271605948372615049",
+    integrityStatus: "Verified",
+    custodyChain: ["Property Registrar", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 4,
+    relationsExtracted: 3,
+    classification: "Public Property Record"
+  },
+  {
+    id: "EVID-2024-006",
+    title: "ANPR Camera Logs - Pier 9 Entrance",
+    type: "Surveillance Data",
+    fileSize: "45.0 MB",
+    uploadedAt: "2024-08-22 16:30:10",
+    sha256: "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+    integrityStatus: "Verified",
+    custodyChain: ["Port Security Video Feeds", "CrimeNet AI Ingestion Service"],
+    entitiesExtracted: 9,
+    relationsExtracted: 7,
+    classification: "Surveillance Telemetry"
+  }
+];
