@@ -199,6 +199,24 @@ export default function EntityResolutionPage() {
             <div className="text-[10px] font-mono text-[var(--text-tertiary)] pt-1">
               Additional evidence required to confirm identity before graph merge.
             </div>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {}}
+                      className="px-4 py-2 rounded-xl border border-[var(--border)] text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                    >
+                      Keep Separate
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {}}
+                      className="px-5 py-2 rounded-xl bg-[var(--primary)] text-white text-[11px] font-semibold hover:bg-[var(--primary-hover)] transition-colors shadow-sm flex items-center gap-2"
+                    >
+                      <GitMerge className="w-4 h-4" />
+                      <span>Merge Entities</span>
+                    </button>
+                  </div>
           </div>
         ))}
       </div>

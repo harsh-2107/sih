@@ -261,7 +261,12 @@ export default function CasePage({ caseId }) {
             {/* AI COPILOT */}
             {activeSection === 'copilot' && (
               <div className="max-w-2xl mx-auto">
-                <QnABar embedded selectedNode={selectedNode} />
+                <QnABar
+                  embedded
+                  selectedNode={selectedNode}
+                  onSelectNode={setSelectedNodeId}
+                  onSelectTab={navigateTo}
+                />
               </div>
             )}
 

@@ -32,8 +32,8 @@
   --glow-teal:            rgba(23, 74, 70, 0.12);
   --glow-rust:            rgba(183, 101, 63, 0.09);
 
-  /* Graph canvas background - light: deep teal-grey for contrast */
-  --graph-bg:             rgba(18, 28, 26, 0.92);
+  /* Graph canvas background - matches CrimeNet background tokens */
+  --graph-bg:             #E9E7E1;
 
   /* Graph node colours */
   --graph-person:         #3F8A82;
@@ -70,7 +70,7 @@
   --glow-rust:            rgba(200, 120, 80, 0.11);
 
   /* Graph canvas background */
-  --graph-bg:             rgba(6, 10, 10, 0.85);
+  --graph-bg:             #0D1212;
 
   --graph-person:         #3F8A82;
   --graph-org:            #5878B0;

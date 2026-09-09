@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import {
   Upload, FileCode, X, CheckCircle2, Loader2,
-  ArrowRight, FileText, ShieldAlert
+  ArrowRight, FileText, ShieldAlert, Tag
 } from "lucide-react";
 import ProcessingPipeline, { PIPELINE_STAGES } from "./ProcessingPipeline";
 
@@ -11,6 +11,7 @@ import ProcessingPipeline, { PIPELINE_STAGES } from "./ProcessingPipeline";
 const STAGE_DURATIONS = [800, 900, 1100, 900, 1000, 800];
 
 export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
+  const [uploadName, setUploadName] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [pipelineStage, setPipelineStage] = useState(-1);   // -1 = not started
@@ -18,7 +19,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
   const fileInputRef = useRef(null);
 
   const isProcessing = pipelineStage >= 0 && !pipelineDone;
-  const canSubmit = uploadedFiles.length > 0 && !isProcessing && !pipelineDone;
+  const canSubmit = uploadName.trim().length > 0 && uploadedFiles.length > 0 && !isProcessing && !pipelineDone;
 
   const addFiles = (files) => {
     const items = Array.from(files).map((f) => ({
@@ -58,6 +59,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
   };
 
   const reset = () => {
+    setUploadName("");
     setUploadedFiles([]);
     setPipelineStage(-1);
     setPipelineDone(false);
@@ -66,17 +68,17 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
   return (
     <div className="p-6 space-y-5 max-w-3xl mx-auto">
       {/* ── Page header ── */}
-      <div className="p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] backdrop-blur-xl space-y-1">
+      <div className="p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] backdrop-blur-xl space-y-3">
         <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-[var(--primary)] uppercase tracking-wider">
           <Upload className="w-3.5 h-3.5" />
           <span>Upload Evidence</span>
         </div>
         <h2 className="text-[17px] font-semibold text-[var(--text-primary)]">
-          Add New Evidence to Case
+          Add New Evidence Batch to Case
         </h2>
 
         {/* Current case context */}
-        <div className="flex items-center gap-3 mt-3 p-3 rounded-lg bg-[var(--primary)]/6 border border-[var(--primary)]/15">
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--primary)]/6 border border-[var(--primary)]/15">
           <div className="p-1.5 rounded-md bg-[var(--primary)] text-white shrink-0">
             <ShieldAlert className="w-3.5 h-3.5" />
           </div>
@@ -89,6 +91,25 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
             </div>
           </div>
         </div>
+
+        {/* Upload Name Input */}
+        {!isProcessing && !pipelineDone && (
+          <div className="space-y-1.5 pt-2 border-t border-[var(--divider)]">
+            <label className="text-[11px] font-mono font-semibold text-[var(--text-secondary)] uppercase tracking-wider block">
+              Upload / Batch Name <span className="text-[var(--danger)]">*</span>
+            </label>
+            <input
+              type="text"
+              value={uploadName}
+              onChange={(e) => setUploadName(e.target.value)}
+              placeholder='e.g., "Financial Records — September 2026"'
+              className="w-full px-3.5 py-2 text-[13px] rounded-xl bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border)] placeholder:[var(--text-tertiary)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+            />
+            <p className="text-[10px] font-mono text-[var(--text-tertiary)]">
+              Descriptive name for this evidence submission batch.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ── Upload zone (only when not processing/done) ── */}
@@ -100,7 +121,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`
-              flex flex-col items-center justify-center gap-3 py-12 px-6
+              flex flex-col items-center justify-center gap-3 py-10 px-6
               rounded-xl border-2 border-dashed cursor-pointer
               transition-all duration-200
               ${dragOver
@@ -109,7 +130,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
               }
             `}
           >
-            <div className={`p-4 rounded-2xl border transition-colors ${dragOver ? "bg-[var(--primary)]/15 border-[var(--primary)]/30" : "bg-[var(--surface-hover)] border-[var(--border)]"}`}>
+            <div className={`p-3.5 rounded-2xl border transition-colors ${dragOver ? "bg-[var(--primary)]/15 border-[var(--primary)]/30" : "bg-[var(--surface-hover)] border-[var(--border)]"}`}>
               <Upload className={`w-6 h-6 transition-colors ${dragOver ? "text-[var(--primary)]" : "text-[var(--text-secondary)]"}`} />
             </div>
             <div className="text-center space-y-1">
@@ -179,7 +200,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
                 flex-1 py-3 rounded-xl font-semibold text-[14px]
                 flex items-center justify-center gap-2 transition-all
                 ${canSubmit
-                  ? "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-sm"
+                  ? "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-sm cursor-pointer"
                   : "bg-[var(--surface-hover)] text-[var(--text-tertiary)] border border-[var(--border)] cursor-not-allowed"
                 }
               `}
@@ -189,9 +210,14 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
             </button>
           </div>
 
-          {uploadedFiles.length === 0 && (
+          {!canSubmit && (
             <p className="text-[11px] font-mono text-[var(--text-tertiary)] text-center">
-              At least one file is required to begin analysis.
+              {!uploadName.trim() && uploadedFiles.length === 0
+                ? "Upload batch name and at least one file are required to begin analysis."
+                : !uploadName.trim()
+                  ? "Please enter an upload batch name to proceed."
+                  : "At least one file is required to begin analysis."
+              }
             </p>
           )}
         </div>
@@ -214,7 +240,7 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
                 <div>
                   <p className="text-[14px] font-semibold text-[var(--text-primary)]">Evidence Integrated</p>
                   <p className="text-[12px] text-[var(--text-secondary)]">
-                    {uploadedFiles.length} file{uploadedFiles.length !== 1 ? "s" : ""} processed successfully
+                    Batch &quot;<strong className="text-[var(--text-primary)]">{uploadName}</strong>&quot; ({uploadedFiles.length} file{uploadedFiles.length !== 1 ? "s" : ""}) processed successfully
                   </p>
                 </div>
               </div>
@@ -264,3 +290,4 @@ export default function UploadEvidencePage({ caseItem = {}, onNavigate }) {
     </div>
   );
 }
+

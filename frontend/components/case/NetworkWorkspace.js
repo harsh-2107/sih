@@ -30,6 +30,8 @@ export default function NetworkWorkspace({
   const [activeFilter, setActiveFilter] = useState("all");
   const [temporalStep, setTemporalStep] = useState(4);
   const [selectedLink, setSelectedLink] = useState(null);
+  const [resetSignal, setResetSignal] = useState(0);
+  const [fitSignal, setFitSignal] = useState(0);
 
   const currentSnapshot = GRAPH_SNAPSHOTS[temporalStep];
   const displayNodes = React.useMemo(() => {
@@ -54,26 +56,37 @@ export default function NetworkWorkspace({
     ? graphData.nodes.find((n) => n.id === selectedNodeId)
     : null;
 
+  const handleResetView = () => {
+    onSelectNode(null);
+    setSelectedLink(null);
+    setAutoRotate(true);
+    setResetSignal((prev) => prev + 1);
+  };
+
+  const handleFitView = () => {
+    setFitSignal((prev) => prev + 1);
+  };
+
   return (
     <div
       className="graph-canvas-bg border border-[var(--border-strong)] shadow-2xl overflow-hidden flex flex-col relative transition-all"
       style={{ height: "calc(100vh - 200px)", minHeight: 480 }}
     >
       {/* ── Workspace header ── */}
-      <div className="p-3 border-b border-white/10 bg-black/20 backdrop-blur-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10 shrink-0">
+      <div className="p-3 border-b border-[var(--border)] bg-[var(--surface)] backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="px-2.5 py-1 rounded-md bg-[var(--primary)]/25 text-[var(--primary)] border border-[var(--primary)]/40 text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <div className="px-2.5 py-1 rounded-md bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
             <Box className="w-3.5 h-3.5" />
             <span>3D Intelligence Graph</span>
           </div>
-          <span className="text-[11px] font-mono text-white/40 hidden sm:inline">
+          <span className="text-[11px] font-mono text-[var(--text-secondary)] hidden sm:inline">
             {displayNodes.length} nodes · {displayLinks.length} edges
           </span>
         </div>
 
         {/* Entity search */}
         <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" />
           <input
             type="text"
             placeholder="Focus node by name or ID…"
@@ -90,13 +103,13 @@ export default function NetworkWorkspace({
                 if (match) onSelectNode(match.id);
               }
             }}
-            className="w-full pl-9 pr-7 py-1.5 text-[11px] rounded-lg bg-white/8 text-white border border-white/15 placeholder:text-white/30 focus:outline-none focus:border-[var(--primary)]/60 font-mono transition-colors"
+            className="w-full pl-9 pr-7 py-1.5 text-[11px] rounded-lg bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border)] placeholder:[var(--text-tertiary)] focus:outline-none focus:border-[var(--primary)] font-mono transition-colors"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => { setSearchQuery(""); onSelectNode(null); }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -118,14 +131,16 @@ export default function NetworkWorkspace({
           onSelectLink={setSelectedLink}
           autoRotate={autoRotate}
           activeFilter={activeFilter}
+          resetSignal={resetSignal}
+          fitSignal={fitSignal}
         />
 
         {/* Controls overlay */}
         <GraphControls
           autoRotate={autoRotate}
           onToggleAutoRotate={() => setAutoRotate(!autoRotate)}
-          onResetView={() => onSelectNode(null)}
-          onFitView={() => onSelectNode(null)}
+          onResetView={handleResetView}
+          onFitView={handleFitView}
           temporalStep={temporalStep}
           onTemporalStepChange={setTemporalStep}
           snapshots={GRAPH_SNAPSHOTS}

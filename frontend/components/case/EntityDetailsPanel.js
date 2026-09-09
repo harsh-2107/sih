@@ -59,7 +59,7 @@ export default function EntityDetailsPanel({ selectedNode, onClose, onAskAi, lin
       </div>
 
       {/* Role & Risk Level Badges */}
-      <div className="grid grid-cols-2 gap-2 text-[12px]">
+      {/* <div className="grid grid-cols-2 gap-2 text-[12px]">
         <div className="p-2.5 rounded-xl bg-[var(--surface-hover)] border border-[var(--border)]">
           <span className="text-[11px] text-[var(--text-secondary)] block mb-0.5">Role</span>
           <span className="font-semibold text-[var(--text-primary)]">{selectedNode.role || "Associated Entity"}</span>
@@ -74,7 +74,7 @@ export default function EntityDetailsPanel({ selectedNode, onClose, onAskAi, lin
             {selectedNode.risk} Risk
           </span>
         </div>
-      </div>
+      </div> */}
 
       {/* Intelligence Summary / Details */}
       <div className="space-y-1">
@@ -113,7 +113,7 @@ export default function EntityDetailsPanel({ selectedNode, onClose, onAskAi, lin
       )}
 
       {/* Footer Actions */}
-      <div className="pt-2 border-t border-[var(--divider)] flex gap-2">
+      {/* <div className="pt-2 border-t border-[var(--divider)] flex gap-2">
         <button
           type="button"
           onClick={() => onAskAi && onAskAi(selectedNode)}
@@ -122,7 +122,7 @@ export default function EntityDetailsPanel({ selectedNode, onClose, onAskAi, lin
           <Sparkles className="w-3.5 h-3.5" />
           <span>Ask AI Copilot</span>
         </button>
-      </div>
+      </div> */}
 
     </div>
   );

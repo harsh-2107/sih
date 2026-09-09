@@ -1,110 +1,120 @@
 "use client";
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, Html, Line } from "@react-three/drei";
 import * as THREE from "three";
-import { NODE_TYPES } from "@/lib/mock/graph";
+import { useTheme } from "@/providers/ThemeProvider";
 
 // ────────────────────────────────────────────────────────────
-// Type palette — restrained, CrimeNet-aligned
+// Type palette — CrimeNet-aligned
 // ────────────────────────────────────────────────────────────
 const TYPE_CONFIG = {
-  person:   { hex: "#3F8A82", label: "PERSON",       bgCls: "bg-teal-500/10 border-teal-500/30"   },
-  org:      { hex: "#5878B0", label: "ORGANIZATION", bgCls: "bg-blue-500/10 border-blue-500/30"   },
-  location: { hex: "#7AAD4A", label: "LOCATION",     bgCls: "bg-green-500/10 border-green-500/30" },
-  phone:    { hex: "#9A7ACE", label: "PHONE",         bgCls: "bg-purple-500/10 border-purple-500/30" },
-  vehicle:  { hex: "#C87850", label: "VEHICLE",       bgCls: "bg-orange-500/10 border-orange-500/30" },
-  document: { hex: "#E5C07B", label: "DOCUMENT",     bgCls: "bg-yellow-500/10 border-yellow-500/30" },
+  person:   { hex: "#3F8A82", label: "PERSON"       },
+  org:      { hex: "#5878B0", label: "ORGANIZATION" },
+  location: { hex: "#7AAD4A", label: "LOCATION"     },
+  phone:    { hex: "#9A7ACE", label: "PHONE"        },
+  vehicle:  { hex: "#C87850", label: "VEHICLE"      },
+  document: { hex: "#E5C07B", label: "DOCUMENT"     },
 };
 
 // ────────────────────────────────────────────────────────────
 // EntityCard — floating HTML panel in 3D space
+// NO DIMMING: All nodes remain fully visible at 100% opacity.
 // ────────────────────────────────────────────────────────────
-function EntityCard({ node, isSelected, isDimmed, isHovered, onSelect, onHover, linkCount }) {
+function EntityCard({ node, isSelected, isHovered, onSelect, onHover, linkCount, isDark }) {
   const meshRef = useRef();
   const cfg = TYPE_CONFIG[node.type] || TYPE_CONFIG.person;
   const position = [node.x || 0, node.y || 0, node.z || 0];
-  const opacity = isDimmed ? 0.18 : 1.0;
 
   // Subtle float animation for selected node
   useFrame((state) => {
     if (!meshRef.current) return;
     if (isSelected) {
-      meshRef.current.position.z = (node.z || 0) + Math.sin(state.clock.elapsedTime * 2) * 0.06;
+      meshRef.current.position.z = (node.z || 0) + Math.sin(state.clock.elapsedTime * 2) * 0.08;
     } else {
       meshRef.current.position.z = node.z || 0;
     }
   });
 
   return (
-    <group
-      ref={meshRef}
-      position={position}
-    >
+    <group ref={meshRef} position={position}>
       {/* Invisible hit-box plane for raycasting */}
       <mesh
-        onClick={(e) => { e.stopPropagation(); onSelect && onSelect(node.id); }}
-        onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; onHover && onHover(node.id); }}
-        onPointerOut={() => { document.body.style.cursor = "auto"; onHover && onHover(null); }}
-      >
+          onPointerDown={(e) => { e.stopPropagation(); onSelect && onSelect(node.id); }}
+          onClick={(e) => { e.stopPropagation(); onSelect && onSelect(node.id); }}
+          onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; onHover && onHover(node.id); }}
+          onPointerOut={() => { document.body.style.cursor = "auto"; onHover && onHover(null); }}
+        >
         <planeGeometry args={[2.2, 0.9]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* HTML card overlay */}
+      {/* 3D Selection Ring Halo */}
+      {isSelected && null}
+
+      {/* HTML card overlay — ALWAYS opacity 1.0 */}
       <Html
         center
         distanceFactor={7}
-        style={{ pointerEvents: "none", opacity, transition: "opacity 0.25s ease" }}
+        style={{ pointerEvents: "none", opacity: 1.0, transition: "transform 0.2s ease" }}
         occlude={false}
       >
         <div
           className={`
-            relative flex flex-col gap-[2px] px-2.5 py-1.5
-            rounded-md border backdrop-blur-sm
-            min-w-[120px] max-w-[160px] select-none
+            relative flex flex-col gap-[2px] px-3 py-2
+            rounded-lg border backdrop-blur-md
+            min-w-[125px] max-w-[165px] select-none
             transition-all duration-200
-            ${cfg.bgCls}
             ${isSelected
-              ? "bg-white/10 border-opacity-80 shadow-lg ring-1 ring-white/20"
+              ? isDark
+                ? "bg-[#14201E] border-2 border-[#3F8A82] ring-4 ring-[#3F8A82]/50 shadow-2xl scale-110"
+                : "bg-[#FFFFFF] border-2 border-[#174A46] ring-4 ring-[#174A46]/40 shadow-2xl scale-110"
               : isHovered
-                ? "bg-white/8 border-opacity-60"
-                : "border-opacity-30"
+                ? isDark
+                  ? "bg-[#182322] border-white/30 shadow-md"
+                  : "bg-[#F0F2ED] border-[#174A46]/40 shadow-md"
+                : isDark
+                  ? "bg-[#0E1515]/90 border-white/12 shadow-sm"
+                  : "bg-[#F7F8F5]/95 border-[#174A46]/20 shadow-sm"
             }
           `}
-          style={{
-            background: isSelected
-              ? `rgba(255,255,255,0.07)`
-              : `rgba(10,14,14,0.72)`,
-          }}
         >
           {/* Type label */}
           <div
-            className="text-[8px] font-mono font-bold tracking-widest uppercase opacity-60 leading-none"
+            className="text-[8.5px] font-mono font-bold tracking-widest uppercase leading-none flex items-center justify-between"
             style={{ color: cfg.hex }}
           >
-            {cfg.label}
+            <span>{cfg.label}</span>
+            {isSelected && (
+              <span className={`w-2 h-2 rounded-full ${isDark ? "bg-[#3F8A82] shadow-sm animate-pulse" : "bg-[#174A46] shadow-sm animate-pulse"}`} />
+            )}
           </div>
 
           {/* Entity name */}
           <div
-            className="text-[11px] font-semibold leading-snug text-white truncate"
-            style={{ maxWidth: 140, opacity: isDimmed ? 0.4 : 1 }}
+            className={`text-[11.5px] font-semibold leading-snug truncate ${
+              isSelected
+                ? isDark ? "text-white font-bold" : "text-[#101817] font-bold"
+                : isDark ? "text-[#EFF2ED]" : "text-[#17201F]"
+            }`}
+            style={{ maxWidth: 145 }}
           >
             {node.name}
           </div>
 
           {/* Connection count / role */}
-          <div className="text-[8px] font-mono text-white/40 leading-none mt-[1px]">
-            {linkCount > 0 ? `${linkCount} link${linkCount !== 1 ? "s" : ""}` : node.role || ""}
+          <div className={`text-[8.5px] font-mono leading-none mt-[1px] ${
+            isDark ? "text-[#A1AAA6]" : "text-[#66716F]"
+          }`}>
+            {linkCount > 0 ? `${linkCount} connection${linkCount !== 1 ? "s" : ""}` : node.role || ""}
           </div>
 
-          {/* Selection indicator: left accent bar */}
+          {/* Selection indicator bar */}
           {isSelected && (
             <div
-              className="absolute left-0 top-1/4 bottom-1/4 w-[2px] rounded-r"
-              style={{ background: cfg.hex }}
+              className="absolute left-0 top-1 bottom-1 w-[3.5px] rounded-r"
+              style={{ background: isDark ? "#3F8A82" : "#174A46" }}
             />
           )}
         </div>
@@ -114,55 +124,156 @@ function EntityCard({ node, isSelected, isDimmed, isHovered, onSelect, onHover, 
 }
 
 // ────────────────────────────────────────────────────────────
-// LinkLines — thin colored connection lines
+// LinkLines — Connections using Drei <Line>
+// When a node is selected, all edges directly connected to that node are visually highlighted.
+// All other edges remain fully visible at normal opacity.
 // ────────────────────────────────────────────────────────────
-function LinkLines({ links, nodeMap, selectedNodeId }) {
-  const lineGeometry = useMemo(() => {
-    const points = [];
-    const colors = [];
-
-    links.forEach((link) => {
-      const sId = typeof link.source === "object" ? link.source.id : link.source;
-      const tId = typeof link.target === "object" ? link.target.id : link.target;
-      const src = nodeMap.get(sId);
-      const tgt = nodeMap.get(tId);
-      if (!src || !tgt) return;
-
-      const p1 = new THREE.Vector3(src.x || 0, src.y || 0, src.z || 0);
-      const p2 = new THREE.Vector3(tgt.x || 0, tgt.y || 0, tgt.z || 0);
-      points.push(p1, p2);
-
-      const isConnected =
-        selectedNodeId &&
-        (sId === selectedNodeId || tId === selectedNodeId);
-
-      const c = isConnected
-        ? new THREE.Color("#3F8A82") // teal accent for selected connections
-        : new THREE.Color("#2A3535"); // dark grey for idle links
-      colors.push(c.r, c.g, c.b, c.r, c.g, c.b);
-    });
-
-    const geom = new THREE.BufferGeometry().setFromPoints(points);
-    geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    return geom;
-  }, [links, nodeMap, selectedNodeId]);
-
+function LinkLines({ links, nodeMap, selectedNodeId, selectedLinkId, isDark }) {
   return (
-    <lineSegments geometry={lineGeometry}>
-      <lineBasicMaterial
-        vertexColors={true}
-        transparent={true}
-        opacity={selectedNodeId ? 0.55 : 0.35}
-        linewidth={1}
-      />
-    </lineSegments>
+    <group>
+      {links.map((link) => {
+        const sId = typeof link.source === "object" ? link.source.id : link.source;
+        const tId = typeof link.target === "object" ? link.target.id : link.target;
+        const src = nodeMap.get(sId);
+        const tgt = nodeMap.get(tId);
+        if (!src || !tgt) return null;
+
+        const p1 = [src.x || 0, src.y || 0, src.z || 0];
+        const p2 = [tgt.x || 0, tgt.y || 0, tgt.z || 0];
+
+        const isSelectedLink = selectedLinkId && (link.id === selectedLinkId);
+        const isConnectedToSelectedNode = selectedNodeId && (sId === selectedNodeId || tId === selectedNodeId);
+        const isHighlighted = isSelectedLink || isConnectedToSelectedNode;
+
+        let color;
+        let opacity;
+        let lineWidth;
+
+        if (isDark) {
+          if (isHighlighted) {
+            color = "#C87850"; // Accent orange highlight for selected/connected edge
+            opacity = 0.95;
+            lineWidth = 3.8;
+          } else {
+            color = "#3F8A82"; // Muted teal for idle links in dark mode
+            opacity = 0.50;
+            lineWidth = 2.2;
+          }
+        } else {
+          // LIGHT MODE
+          if (isHighlighted) {
+            color = "#B7653F"; // Accent rust highlight for selected/connected edge
+            opacity = 0.95;
+            lineWidth = 3.8;
+          } else {
+            color = "#174A46"; // Dark primary teal for idle links (contrasts strongly against #E9E7E1)
+            opacity = 0.60;
+            lineWidth = 2.2;
+          }
+        }
+
+        return (
+          <Line
+            key={link.id || `${sId}-${tId}`}
+            points={[p1, p2]}
+            color={color}
+            lineWidth={lineWidth}
+            transparent
+            opacity={opacity}
+          />
+        );
+      })}
+    </group>
   );
 }
 
 // ────────────────────────────────────────────────────────────
-// GraphScene — inner group with rotation logic
+// CameraController — Camera Reset & Fit controller
 // ────────────────────────────────────────────────────────────
-function GraphScene({ nodes, links, selectedNodeId, onSelectNode, autoRotate, activeFilter }) {
+function CameraController({ resetSignal, fitSignal, filteredNodes }) {
+  const { camera } = useThree();
+  const controls = useThree((state) => state.controls);
+
+  const defaultCamPos = useMemo(() => new THREE.Vector3(0, 0, 9), []);
+  const defaultTarget = useMemo(() => new THREE.Vector3(0, 0, 0), []);
+
+  const targetCamPos = useRef(null);
+  const targetLookAt = useRef(null);
+  const isAnimating = useRef(false);
+
+  // RESET CAMERA
+  useEffect(() => {
+    if (resetSignal === 0 || !controls) return;
+    targetCamPos.current = defaultCamPos.clone();
+    targetLookAt.current = defaultTarget.clone();
+    isAnimating.current = true;
+  }, [resetSignal, defaultCamPos, defaultTarget, controls]);
+
+  // FIT CAMERA TO VISIBLE NODES
+  useEffect(() => {
+    if (fitSignal === 0 || !controls || filteredNodes.length === 0) return;
+
+    const box = new THREE.Box3();
+    filteredNodes.forEach((node) => {
+      box.expandByPoint(new THREE.Vector3(node.x || 0, node.y || 0, node.z || 0));
+    });
+
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    const maxDim = Math.max(size.x, size.y, size.z, 2.5);
+    const fov = camera.fov * (Math.PI / 180);
+    let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
+    cameraZ = Math.max(cameraZ, 4.5);
+
+    targetCamPos.current = new THREE.Vector3(center.x, center.y, center.z + cameraZ);
+    targetLookAt.current = center.clone();
+    isAnimating.current = true;
+  }, [fitSignal, filteredNodes, camera, controls]);
+
+  // Smooth lerp frame loop (300-500ms transition)
+  useFrame((_, delta) => {
+    if (isAnimating.current && targetCamPos.current && targetLookAt.current && controls) {
+      const step = Math.min(delta * 7, 0.3);
+      camera.position.lerp(targetCamPos.current, step);
+      controls.target.lerp(targetLookAt.current, step);
+      controls.update();
+
+      if (
+        camera.position.distanceTo(targetCamPos.current) < 0.05 &&
+        controls.target.distanceTo(targetLookAt.current) < 0.05
+      ) {
+        camera.position.copy(targetCamPos.current);
+        controls.target.copy(targetLookAt.current);
+        controls.update();
+        isAnimating.current = false;
+        targetCamPos.current = null;
+        targetLookAt.current = null;
+      }
+    }
+  });
+
+  return null;
+}
+
+// ────────────────────────────────────────────────────────────
+// GraphScene — inner group with theme-aware lights & rotation
+// ────────────────────────────────────────────────────────────
+function GraphScene({
+  nodes,
+  links,
+  selectedNodeId,
+  selectedLinkId,
+  onSelectNode,
+  autoRotate,
+  activeFilter,
+  isDark,
+  resetSignal,
+  fitSignal,
+}) {
   const groupRef = useRef();
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -181,7 +292,6 @@ function GraphScene({ nodes, links, selectedNodeId, onSelectNode, autoRotate, ac
     return m;
   }, [nodes]);
 
-  // Build per-node link count for card display
   const linkCountMap = useMemo(() => {
     const counts = {};
     links.forEach((link) => {
@@ -208,7 +318,7 @@ function GraphScene({ nodes, links, selectedNodeId, onSelectNode, autoRotate, ac
     });
   }, [links, filteredNodeIds]);
 
-  // Slow cinematic rotation: 0.10 rad/s ≈ full rotation ~63s
+  // Slow cinematic rotation: 0.10 rad/s
   useFrame((_, delta) => {
     if (groupRef.current && autoRotate && !prefersReducedMotion && !selectedNodeId) {
       groupRef.current.rotation.y += delta * 0.10;
@@ -217,31 +327,57 @@ function GraphScene({ nodes, links, selectedNodeId, onSelectNode, autoRotate, ac
 
   return (
     <group ref={groupRef}>
-      {/* Subtle scene lighting — no neon */}
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[8, 12, 8]} intensity={0.8} color="#ffffff" />
-      <pointLight position={[-6, -6, -6]} intensity={0.3} color="#3F8A82" />
+      <CameraController
+        resetSignal={resetSignal}
+        fitSignal={fitSignal}
+        filteredNodes={filteredNodes}
+      />
+
+      {/* Invisible background plane for clearing selection when clicking empty space */}
+      <mesh
+        position={[0, 0, -10]}
+        onClick={(e) => { e.stopPropagation(); onSelectNode && onSelectNode(null); }}
+      >
+        <planeGeometry args={[200, 200]} />
+        <meshBasicMaterial visible={false} />
+      </mesh>
+
+      {/* Theme-aware scene lighting */}
+      {isDark ? (
+        <>
+          <ambientLight intensity={0.8} color="#ffffff" />
+          <directionalLight position={[8, 12, 8]} intensity={0.8} color="#ffffff" />
+          <pointLight position={[-6, -6, -6]} intensity={0.4} color="#3F8A82" />
+        </>
+      ) : (
+        <>
+          <ambientLight intensity={1.2} color="#fffdf8" />
+          <directionalLight position={[10, 15, 10]} intensity={1.0} color="#ffffff" />
+          <pointLight position={[-6, -6, -6]} intensity={0.3} color="#174A46" />
+        </>
+      )}
 
       <LinkLines
         links={filteredLinks}
         nodeMap={nodeMap}
         selectedNodeId={selectedNodeId}
+        selectedLinkId={selectedLinkId}
+        isDark={isDark}
       />
 
       {filteredNodes.map((node) => {
         const isSelected = selectedNodeId === node.id;
-        const isDimmed = !!selectedNodeId && !isSelected;
         const isHovered = hoveredNodeId === node.id;
         return (
           <EntityCard
             key={node.id}
             node={node}
             isSelected={isSelected}
-            isDimmed={isDimmed}
             isHovered={isHovered}
             onSelect={onSelectNode}
             onHover={setHoveredNodeId}
             linkCount={linkCountMap[node.id] || 0}
+            isDark={isDark}
           />
         );
       })}
@@ -256,23 +392,26 @@ export default function Network3D({
   nodes = [],
   links = [],
   selectedNodeId,
+  selectedLinkId,
   onSelectNode,
   autoRotate = true,
   activeFilter = "all",
+  resetSignal = 0,
+  fitSignal = 0,
 }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const controlsRef = useRef();
   const resumeTimerRef = useRef(null);
 
-  // Pause on drag, resume after 3s idle
   const handleInteractionStart = useCallback(() => {
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
   }, []);
 
   const handleInteractionEnd = useCallback(() => {
     if (!autoRotate) return;
-    resumeTimerRef.current = setTimeout(() => {
-      // The autoRotate state lives in the parent; we just let the frame loop take over
-    }, 3000);
+    resumeTimerRef.current = setTimeout(() => {}, 3000);
   }, [autoRotate]);
 
   return (
@@ -285,11 +424,16 @@ export default function Network3D({
           nodes={nodes}
           links={links}
           selectedNodeId={selectedNodeId}
+          selectedLinkId={selectedLinkId}
           onSelectNode={onSelectNode}
           autoRotate={autoRotate}
           activeFilter={activeFilter}
+          isDark={isDark}
+          resetSignal={resetSignal}
+          fitSignal={fitSignal}
         />
         <OrbitControls
+          makeDefault
           ref={controlsRef}
           enableDamping={true}
           dampingFactor={0.06}
@@ -304,3 +448,5 @@ export default function Network3D({
     </div>
   );
 }
+
+

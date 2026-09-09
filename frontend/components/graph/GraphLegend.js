@@ -14,8 +14,8 @@ const HEX = {
 
 export default function GraphLegend({ activeFilter, onSelectFilter }) {
   return (
-    <div className="absolute bottom-4 left-4 z-10 p-2.5 rounded-lg bg-black/60 border border-white/15 backdrop-blur-sm shadow-lg pointer-events-auto max-w-[90vw]">
-      <div className="text-[9px] font-mono uppercase tracking-wider text-white/40 mb-2">
+    <div className="absolute bottom-4 left-4 z-10 p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] backdrop-blur-md shadow-lg pointer-events-auto max-w-[90vw]">
+      <div className="text-[9px] font-mono uppercase tracking-wider text-[var(--text-tertiary)] mb-2">
         Entity Types
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
@@ -24,7 +24,7 @@ export default function GraphLegend({ activeFilter, onSelectFilter }) {
           className={`px-2 py-1 rounded text-[10px] font-mono transition-all border ${
             activeFilter === "all"
               ? "bg-[var(--primary)]/20 border-[var(--primary)] text-[var(--primary)] font-semibold"
-              : "border-transparent text-white/40 hover:text-white hover:bg-white/8"
+              : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
           }`}
         >
           All Types
@@ -39,8 +39,8 @@ export default function GraphLegend({ activeFilter, onSelectFilter }) {
               onClick={() => onSelectFilter?.(typeKey)}
               className={`px-2 py-1 rounded text-[10px] font-mono transition-all flex items-center gap-1.5 border ${
                 isSelected
-                  ? "bg-white/8 border-white/20 text-white font-semibold"
-                  : "border-transparent text-white/40 hover:text-white hover:bg-white/8"
+                  ? "bg-[var(--surface-hover)] border-[var(--border-strong)] text-[var(--text-primary)] font-semibold"
+                  : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               }`}
             >
               <span
@@ -55,3 +55,4 @@ export default function GraphLegend({ activeFilter, onSelectFilter }) {
     </div>
   );
 }
+
